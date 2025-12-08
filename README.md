@@ -384,22 +384,6 @@ If you use GateKeeper in your project, please include:
 
 ---
 
-## 📞 Support
-
-Need help? Here are your options:
-
-1. **Check the [Issues](https://github.com/yourusername/gatekeeper/issues)** page
-2. **Create a new issue** for bugs or feature requests
-3. **Email**: support@yourdomain.com
-4. **Discord Community**: [Join our server](https://discord.gg/your-invite-link)
-
-### Support Tiers
-- **Community Support**: GitHub Issues (free)
-- **Priority Support**: Email response within 24 hours
-- **Enterprise Support**: Custom implementations and support
-
----
-
 ## 🚀 Quick Start Checklist
 
 - [ ] Install Python 3.8+
