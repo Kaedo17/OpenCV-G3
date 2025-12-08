@@ -85,40 +85,88 @@ while True:
 
         face_names.append(name)
 
-    # Display the results
-    for (top, right, bottom, left), name in zip(face_locations, face_names):
-
-        # Scale up face locations
-        top *= 4
-        right *= 4
-        bottom *= 4
-        left *= 4
-
-        # Access Text
-        if name != "Unknown":
-            # If it IS a known person
-            status_text = f"ACCESS GRANTED"
-            color = (0, 255, 0) # Green
-        else:
-            # If it is NOT known
-            status_text = "ACCESS DENIED"
-            color = (0, 0, 255) # Red
+    # Display "NO FACE DETECTED" if no faces are found
+    if len(face_locations) == 0:
+        # Display message in the center of the screen
+        height, width = frame.shape[:2]
+        text = "NO FACE DETECTED"
+        font = cv2.FONT_HERSHEY_DUPLEX
+        font_scale = 1.0
+        thickness = 2
         
-        # Draw the box around the face
-        cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+        # Get text size
+        (text_width, text_height), baseline = cv2.getTextSize(text, font, font_scale, thickness)
+        
+        # Calculate position (center of screen)
+        text_x = (width - text_width) // 2
+        text_y = (height + text_height) // 2
+        
+        # Draw semi-transparent background rectangle
+        padding = 10
+        cv2.rectangle(frame, 
+                     (text_x - padding, text_y - text_height - padding), 
+                     (text_x + text_width + padding, text_y + padding), 
+                     (0, 0, 0), -1)  # Black background
+        cv2.rectangle(frame, 
+                     (text_x - padding, text_y - text_height - padding), 
+                     (text_x + text_width + padding, text_y + padding), 
+                     (255, 255, 255), 2)  # White border
+        
+        # Draw the text
+        cv2.putText(frame, text, (text_x, text_y), 
+                   font, font_scale, (255, 255, 255), thickness)
+        
+        # Also show status in top center
+        status_text = "WAITING FOR FACE..."
+        status_font_scale = 0.7
+        (status_width, _), _ = cv2.getTextSize(status_text, font, status_font_scale, 1)
+        status_x = (width - status_width) // 2
+        cv2.putText(frame, status_text, (status_x, 40), 
+                   font, status_font_scale, (255, 165, 0), 1)  # Orange color
+    
+    # If faces are found, process them
+    else:
+        for (top, right, bottom, left), name in zip(face_locations, face_names):
 
-        # Draw the Status Text ABOVE the head
-        cv2.putText(frame, status_text, (left - 20, top - 20), 
-                    cv2.FONT_HERSHEY_DUPLEX, 0.7, color, 2)
+            # Scale up face locations
+            top *= 4
+            right *= 4
+            bottom *= 4
+            left *= 4
 
-        # Draw the Name Label BELOW the face
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
-        cv2.putText(frame, name, (left + 6, bottom - 6), 
-                    cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+            # Access Text
+            if name != "Unknown":
+                # If it IS a known person
+                status_text = f"ACCESS GRANTED"
+                color = (0, 255, 0) # Green
+            else:
+                # If it is NOT known
+                status_text = "ACCESS DENIED"
+                color = (0, 0, 255) # Red
+            
+            # Draw the box around the face
+            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
 
+            # Draw the Status Text ABOVE the head
+            cv2.putText(frame, status_text, (left - 20, top - 20), 
+                        cv2.FONT_HERSHEY_DUPLEX, 0.7, color, 2)
+
+            # Draw the Name Label BELOW the face
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), color, cv2.FILLED)
+            cv2.putText(frame, name, (left + 6, bottom - 6), 
+                        cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+
+    # Display system info
+    info_text = f"Known Faces: {len(known_names)} | Detected: {len(face_locations)}"
+    cv2.putText(frame, info_text, (10, 30), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+    
+    # Display instruction
+    cv2.putText(frame, "Press 'Q' to quit", (10, frame.shape[0] - 10), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
     # Display resulting image
-    cv2.imshow('Live Verification System', frame)
+    cv2.imshow('GateKeeper - Live Face Verification System', frame)
 
     # Exit on 'q'
     if cv2.waitKey(1) == ord('q'):
